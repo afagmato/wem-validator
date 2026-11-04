@@ -302,7 +302,7 @@ Codex performed the Architect, bounded Builder and Reviewer functions because Cl
 
 The Project Owner explicitly accepted the second Milestone with its documented limitations on 2026-11-04. This completes the required human acceptance gate without releasing the Draft manifest, CLI or JSON contracts.
 
-The current accepted local baseline extends the first Milestone with the manifest, complete supported local-link behavior, rule inventory and packaged report Schema described by this evidence. Repository actions remain intentionally deferred: no commit, remote, push, tag, license, publication or product release has been performed or inferred from Milestone acceptance.
+The accepted second-Milestone baseline extends the first Milestone with the manifest, complete supported local-link behavior, rule inventory and packaged report Schema described by this evidence. The later, separately authorized initial local commit `6659dbd` preserved the combined accepted baseline. No remote, push, tag, license, publication or product release was authorized or inferred from Milestone acceptance.
 
 ---
 

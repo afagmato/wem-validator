@@ -278,7 +278,7 @@ Codex performed the Architect, bounded Builder and Reviewer functions because Cl
 
 The Project Owner explicitly accepted the first Milestone with its documented limitations on 2026-11-04. This completes the required human acceptance gate without changing the Draft status of the CLI, JSON interface or architecture specification.
 
-The accepted Initialization Baseline is the verified local working tree described by this implementation evidence. Repository actions remain intentionally deferred: no commit, remote, push, tag, license, publication or product release has been performed or inferred from Milestone acceptance.
+At first-Milestone acceptance, the accepted Initialization Baseline was the verified uncommitted local working tree described by this implementation evidence. The later, separately authorized initial local commit `6659dbd` preserved that baseline together with the accepted second-Milestone extension. No remote, push, tag, license, publication or product release was authorized or inferred from Milestone acceptance.
 
 ---
 

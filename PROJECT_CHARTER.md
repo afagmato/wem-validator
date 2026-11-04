@@ -188,7 +188,7 @@ The accepted Initialization Baseline consists of:
 - valid, invalid, unsupported and golden-output fixtures;
 - the verification evidence and known limitations recorded by WEMV-ADR-003.
 
-The baseline remains an uncommitted local working tree because commit, remote and publication actions were explicitly excluded from the authorization. Milestone acceptance SHALL NOT be interpreted as authorization for those repository actions or for a subsequent Milestone.
+At first-Milestone acceptance, the baseline remained an uncommitted local working tree because commit, remote and publication actions were explicitly excluded from that authorization. It was later incorporated into the current accepted baseline and preserved by the separately authorized initial local commit. Milestone acceptance SHALL NOT be interpreted as authorization for repository actions or for a subsequent Milestone.
 
 ## Second Milestone
 
@@ -207,7 +207,7 @@ The current accepted local baseline extends the Initialization Baseline with:
 - 37 passing automated tests and installed-wheel verification;
 - zero-finding validation of both the WEM Validator manifest scope and WEM `v1.2.0` archive.
 
-This baseline remains uncommitted because no repository-action authorization has been granted. It is accepted product state but is not yet preserved by recoverable Git history.
+This baseline is preserved by initial local Git commit `6659dbd`, created under separate explicit repository-action authorization. The repository has no configured remote, and no push, tag, license, publication or product release has been performed.
 
 ## Foundation Acceptance Criteria
 
