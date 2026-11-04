@@ -1,0 +1,25 @@
+{
+  "findings": [],
+  "formatVersion": "0.2.0",
+  "limitations": [
+    "Raw HTML anchors and ambiguous Markdown constructs remain outside the supported subset.",
+    "Frontmatter supports the flat key-value form used by WEM 1.2.0.",
+    "Git-history-dependent lifecycle preservation is outside this profile subset."
+  ],
+  "profile": "wem-1.2.0",
+  "scope": {
+    "excludePatterns": [],
+    "excludedPathCounts": {},
+    "includePatterns": [],
+    "manifest": null,
+    "mode": "direct"
+  },
+  "summary": {
+    "error": 0,
+    "total": 0,
+    "unsupported": 0,
+    "warning": 0
+  },
+  "target": ".",
+  "wemReference": "WEM 1.2.0 — Released"
+}

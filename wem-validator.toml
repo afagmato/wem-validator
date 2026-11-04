@@ -1,0 +1,11 @@
+format-version = "0.1.0"
+profile = "wem-1.2.0"
+include = ["**/*.md"]
+exclude = [
+    "tests/fixtures/invalid/**",
+    "tests/fixtures/unsupported/**",
+]
+
+[limits]
+max-file-bytes = 1048576
+max-files = 4096

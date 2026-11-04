@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wem-validator"
+version = "0.1.0"
+description = "Deterministic read-only validation for WEM governance artifacts"
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[project.scripts]
+wem-validate = "wem_validator.cli:main"
+
+[dependency-groups]
+dev = [
+    "jsonschema>=4.23,<5",
+    "mypy>=1.15,<2",
+    "pytest>=8.3,<9",
+    "ruff>=0.11,<1",
+    "types-jsonschema>=4.23,<5",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/contracts",
+    "/src",
+    "/tests",
+    "/pyproject.toml",
+    "/uv.lock",
+    "/wem-validator.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wem_validator"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"contracts" = "wem_validator/contracts"
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+packages = ["wem_validator"]
+mypy_path = "src"
