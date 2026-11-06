@@ -289,6 +289,6 @@ Codex performed the Architect, bounded Builder and Reviewer functions while Clau
 
 The Project Owner explicitly accepted the third Milestone with its documented limitations on 2026-11-06. This completes the required human acceptance gate without releasing the Draft CLI, manifest, profile or JSON contracts.
 
-The accepted third-Milestone extension remains an uncommitted local working tree. No commit, remote, push, tag, license, publication, release or distribution has been performed or inferred from Milestone acceptance.
+The accepted third-Milestone extension was preserved by the separately authorized local commit `2e19a0c` on 2026-11-06. No remote, push, tag, license, publication, release or distribution was authorized or inferred from Milestone acceptance.
 
 ---

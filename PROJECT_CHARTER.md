@@ -209,7 +209,7 @@ The current accepted local baseline extends the Initialization Baseline with:
 - 45 passing automated tests and deterministic installed-wheel verification;
 - zero-finding validation of the WEM Validator manifest scope in filesystem and Git-aware modes and of the WEM `v1.2.0` archive within filesystem-only coverage.
 
-The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension remains uncommitted because no repository-action authorization has been granted for it. The repository has no configured remote, and no push, tag, license, publication or product release has been performed.
+The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c`, created under separate explicit repository-action authorization on 2026-11-06. The repository has no configured remote, and no push, tag, license, publication or product release has been performed.
 
 ## Third Milestone
 
