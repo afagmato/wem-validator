@@ -9,7 +9,7 @@ from wem_validator.schema_resources import load_report_schema, load_report_schem
 
 
 def _schema(repository_root: Path) -> dict[str, object]:
-    canonical = repository_root / "contracts" / "finding-report" / "0.2.0.schema.json"
+    canonical = repository_root / "contracts" / "finding-report" / "0.3.0.schema.json"
     assert load_report_schema_bytes() == canonical.read_bytes()
     return load_report_schema()
 
@@ -41,4 +41,19 @@ def test_report_schema_accepts_findings(repository_root: Path) -> None:
         profile_id="wem-1.2.0",
     ).as_json()
     assert report["findings"]
+    Draft202012Validator(schema).validate(report)
+
+
+def test_report_schema_accepts_explicit_history_unavailability(
+    repository_root: Path,
+    tmp_path: Path,
+) -> None:
+    schema = _schema(repository_root)
+    (tmp_path / "input.md").write_text("# Input\n", encoding="utf-8")
+    report = validate_target(
+        tmp_path,
+        profile_id="wem-1.2.0",
+        history_mode="git",
+    ).as_json()
+    assert report["history"]["availability"] == "unavailable"
     Draft202012Validator(schema).validate(report)

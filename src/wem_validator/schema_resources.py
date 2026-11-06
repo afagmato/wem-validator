@@ -6,7 +6,7 @@ import json
 from importlib.resources import files
 from pathlib import Path
 
-_REPORT_SCHEMA = "contracts/finding-report/0.2.0.schema.json"
+_REPORT_SCHEMA = "contracts/finding-report/0.3.0.schema.json"
 
 
 def load_report_schema_bytes() -> bytes:

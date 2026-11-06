@@ -1,12 +1,26 @@
 {
   "findings": [],
-  "formatVersion": "0.2.0",
+  "formatVersion": "0.3.0",
+  "history": {
+    "artifactCount": 0,
+    "availability": "not-requested",
+    "boundary": "none",
+    "commitCount": 0,
+    "complete": false,
+    "currentRevision": null,
+    "limitations": [
+      "Git-history-dependent lifecycle checks were not requested."
+    ],
+    "mode": "none"
+  },
   "limitations": [
     "Raw HTML anchors and ambiguous Markdown constructs remain outside the supported subset.",
     "Frontmatter supports the flat key-value form used by WEM 1.2.0.",
-    "Git-history-dependent lifecycle preservation is outside this profile subset."
+    "Git lifecycle coverage is limited to explicitly requested local first-parent history.",
+    "Git-history-dependent lifecycle checks were not requested."
   ],
   "profile": "wem-1.2.0",
+  "profileVersion": "0.3.0",
   "scope": {
     "excludePatterns": [],
     "excludedPathCounts": {},

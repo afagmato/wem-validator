@@ -140,12 +140,12 @@ The following directions are now accepted and implemented in Draft form:
 - a command-line interface suitable for local and CI execution;
 - offline operation for canonical local validation;
 - implementation-language selection based on deterministic parsing, packaging and cross-platform support;
-- incremental delivery beginning with frontmatter, relative links and ADR structure.
+- incremental delivery beginning with frontmatter, relative links and ADR structure;
+- optional local Git observation for bounded ADR lifecycle-preservation checks.
 
 The following remain unresolved material decisions:
 
 - public compatibility and release status for the CLI, manifest and JSON interfaces;
-- Git-history-dependent lifecycle validation;
 - profiles for WEM versions other than 1.2.0;
 - licensing;
 - remote hosting and publication.
@@ -161,6 +161,7 @@ The following remain unresolved material decisions:
 | Machine-readable findings interface | ASI-2 within the first Milestone boundary | Project Owner | Draft implementation authorized by WEMV-ADR-003 |
 | Implementation language and libraries | ASI-3 | Project Owner | Accepted through WEMV-ADR-003 |
 | Repository-scoped manifest and extended link semantics | ASI-3 | Project Owner | Accepted and implemented through WEMV-ADR-004 |
+| Git-aware ADR lifecycle validation | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-005 |
 | Licensing and publication | Human-reserved | Project Owner | Deferred |
 
 ## First Milestone
@@ -202,12 +203,30 @@ The current accepted local baseline extends the Initialization Baseline with:
 
 - explicit repository-scoped manifest validation;
 - supported inline, reference-style and heading-fragment link evaluation;
-- Draft finding-report JSON Schema 0.2.0;
-- packaged Schema resources and rule-inventory projection;
-- 37 passing automated tests and installed-wheel verification;
-- zero-finding validation of both the WEM Validator manifest scope and WEM `v1.2.0` archive.
+- explicit opt-in local Git first-parent observation and ADR lifecycle-preservation rules;
+- Draft finding-report JSON Schema 0.3.0 with Schema 0.2.0 preserved as historical knowledge;
+- packaged Schema resources, versioned rule inventory and profile implementation version 0.3.0;
+- 45 passing automated tests and deterministic installed-wheel verification;
+- zero-finding validation of the WEM Validator manifest scope in filesystem and Git-aware modes and of the WEM `v1.2.0` archive within filesystem-only coverage.
 
-This baseline is preserved by initial local Git commit `6659dbd`, created under separate explicit repository-action authorization. The repository has no configured remote, and no push, tag, license, publication or product release has been performed.
+The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension remains uncommitted because no repository-action authorization has been granted for it. The repository has no configured remote, and no push, tag, license, publication or product release has been performed.
+
+## Third Milestone
+
+The third Milestone adds explicit opt-in observation of bounded local Git first-parent history and evaluates ADR lifecycle preservation without treating Git metadata as proof of human approval.
+
+WEMV-ADR-005 authorized the bounded implementation. The accepted Milestone includes:
+
+- a provider-independent history observation model and isolated Git adapter;
+- append-only Status History, lifecycle-transition, ADR-preservation and identifier-continuity rules;
+- explicit unavailable and insufficient-evidence outcomes;
+- Draft finding-report JSON Schema 0.3.0 while preserving Schema 0.2.0 as historical knowledge;
+- Draft profile implementation version 0.3.0 and package version 0.2.0;
+- deterministic temporary-repository fixtures and read-only Git-state verification.
+
+Local technical verification completed with 45 passing automated tests, deterministic installed-wheel history output, zero findings for the maintained WEM Validator repository in Git-aware mode and zero findings for the WEM `v1.2.0` archive within filesystem-only coverage.
+
+The Project Owner accepted the third Milestone with its documented limitations on 2026-11-06. Milestone acceptance does not authorize commit, remote creation, push, tag, license, publication, release or distribution.
 
 ## Foundation Acceptance Criteria
 

@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wem-validator.invalid/contracts/finding-report/0.3.0.schema.json",
+  "title": "WEM Validator Draft Finding Report 0.3.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "formatVersion",
+    "profile",
+    "profileVersion",
+    "wemReference",
+    "target",
+    "scope",
+    "history",
+    "findings",
+    "limitations",
+    "summary"
+  ],
+  "properties": {
+    "formatVersion": { "const": "0.3.0" },
+    "profile": { "$ref": "#/$defs/nonEmpty" },
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "wemReference": { "$ref": "#/$defs/nonEmpty" },
+    "target": { "const": "." },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "manifest",
+        "includePatterns",
+        "excludePatterns",
+        "excludedPathCounts"
+      ],
+      "properties": {
+        "mode": { "enum": ["direct", "manifest"] },
+        "manifest": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/relativePath" }
+          ]
+        },
+        "includePatterns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmpty" },
+          "uniqueItems": true
+        },
+        "excludePatterns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmpty" },
+          "uniqueItems": true
+        },
+        "excludedPathCounts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "availability",
+        "complete",
+        "currentRevision",
+        "boundary",
+        "commitCount",
+        "artifactCount",
+        "limitations"
+      ],
+      "properties": {
+        "mode": { "enum": ["none", "git"] },
+        "availability": {
+          "enum": ["not-requested", "complete", "unavailable", "insufficient"]
+        },
+        "complete": { "type": "boolean" },
+        "currentRevision": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^[0-9a-f]{40,64}$" }
+          ]
+        },
+        "boundary": { "enum": ["none", "first-parent"] },
+        "commitCount": { "type": "integer", "minimum": 0 },
+        "artifactCount": { "type": "integer", "minimum": 0 },
+        "limitations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmpty" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/nonEmpty" },
+      "uniqueItems": true
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "error", "warning", "unsupported"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "error": { "type": "integer", "minimum": 0 },
+        "warning": { "type": "integer", "minimum": 0 },
+        "unsupported": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmpty": {
+      "type": "string",
+      "minLength": 1
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "profile",
+        "outcome",
+        "path",
+        "line",
+        "explanation",
+        "source",
+        "limitations"
+      ],
+      "properties": {
+        "ruleId": { "$ref": "#/$defs/nonEmpty" },
+        "profile": { "$ref": "#/$defs/nonEmpty" },
+        "outcome": { "enum": ["error", "warning", "unsupported"] },
+        "path": { "$ref": "#/$defs/relativePath" },
+        "line": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1 }
+          ]
+        },
+        "explanation": { "$ref": "#/$defs/nonEmpty" },
+        "source": { "$ref": "#/$defs/nonEmpty" },
+        "limitations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmpty" },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

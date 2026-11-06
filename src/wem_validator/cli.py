@@ -22,6 +22,7 @@ def _parser() -> argparse.ArgumentParser:
     validate.add_argument("target", type=Path)
     validate.add_argument("--profile")
     validate.add_argument("--config", type=Path)
+    validate.add_argument("--history", choices=("none", "git"), default="none")
     validate.add_argument("--format", choices=("text", "json"), default="text")
     profile = commands.add_parser("profile")
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
@@ -34,7 +35,7 @@ def _parser() -> argparse.ArgumentParser:
 def _emit_failure(code: str, message: str, *, output_format: str) -> None:
     if output_format == "json":
         payload = {
-            "formatVersion": "0.2.0",
+            "formatVersion": "0.3.0",
             "status": "error",
             "error": {"code": code, "message": message},
         }
@@ -63,6 +64,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(json.dumps(inventory, ensure_ascii=False, indent=2, sort_keys=True))
         else:
             print(f"Profile: {inventory['profile']}")
+            print(f"Profile version: {inventory['profileVersion']}")
             print(f"WEM Reference: {inventory['wemReference']}")
             print("Rules:")
             rules = inventory["rules"]
@@ -87,6 +89,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.target,
             profile_id=args.profile,
             manifest_path=args.config,
+            history_mode=args.history,
         )
     except ManifestFailure as error:
         _emit_failure("invalid_manifest", str(error), output_format=args.format)

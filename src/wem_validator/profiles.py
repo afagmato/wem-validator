@@ -15,6 +15,7 @@ class RuleDefinition:
 @dataclass(frozen=True, slots=True)
 class ValidationProfile:
     identifier: str
+    version: str
     wem_reference: str
     rules: tuple[RuleDefinition, ...]
     limitations: tuple[str, ...]
@@ -22,6 +23,7 @@ class ValidationProfile:
 
 WEM_120 = ValidationProfile(
     identifier="wem-1.2.0",
+    version="0.3.0",
     wem_reference="WEM 1.2.0 — Released",
     rules=(
         RuleDefinition(
@@ -79,11 +81,36 @@ WEM_120 = ValidationProfile(
             "WEMV-ADR-004#Explicit repository manifest",
             "Repository validation scope is explicit, bounded and path-safe.",
         ),
+        RuleDefinition(
+            "WEMV120-HISTORY-001",
+            "WEMV-ADR-005#Explicit activation",
+            "Requested local Git history is available, complete and bounded.",
+        ),
+        RuleDefinition(
+            "WEMV120-HISTORY-002",
+            "ADR_SPECIFICATION.md@1.1.0#Status History",
+            "Current ADR status agrees with a valid maintained Status History.",
+        ),
+        RuleDefinition(
+            "WEMV120-HISTORY-003",
+            "ADR_SPECIFICATION.md@1.1.0#Traceability and Preservation",
+            "Maintained ADR lifecycle history is append-only and remains present.",
+        ),
+        RuleDefinition(
+            "WEMV120-HISTORY-004",
+            "ADR_SPECIFICATION.md@1.1.0#ADR Lifecycle",
+            "Observed ADR lifecycle transitions follow the canonical lifecycle.",
+        ),
+        RuleDefinition(
+            "WEMV120-HISTORY-005",
+            "ADR_SPECIFICATION.md@1.1.0#Identifier Governance",
+            "Permanent ADR identifiers preserve one continuous decision identity.",
+        ),
     ),
     limitations=(
         "Raw HTML anchors and ambiguous Markdown constructs remain outside the supported subset.",
         "Frontmatter supports the flat key-value form used by WEM 1.2.0.",
-        "Git-history-dependent lifecycle preservation is outside this profile subset.",
+        "Git lifecycle coverage is limited to explicitly requested local first-parent history.",
     ),
 )
 
@@ -100,8 +127,9 @@ def resolve_profile(identifier: str) -> ValidationProfile:
 def profile_inventory(identifier: str) -> dict[str, object]:
     profile = resolve_profile(identifier)
     return {
-        "formatVersion": "0.1.0",
+        "formatVersion": "0.2.0",
         "profile": profile.identifier,
+        "profileVersion": profile.version,
         "wemReference": profile.wem_reference,
         "rules": [
             {

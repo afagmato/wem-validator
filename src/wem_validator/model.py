@@ -90,12 +90,25 @@ class ScopeJson(TypedDict):
     excludedPathCounts: dict[str, int]
 
 
+class HistoryJson(TypedDict):
+    mode: str
+    availability: str
+    complete: bool
+    currentRevision: str | None
+    boundary: str
+    commitCount: int
+    artifactCount: int
+    limitations: list[str]
+
+
 class ReportJson(TypedDict):
     formatVersion: str
     profile: str
+    profileVersion: str
     wemReference: str
     target: str
     scope: ScopeJson
+    history: HistoryJson
     findings: list[FindingJson]
     limitations: list[str]
     summary: SummaryJson
@@ -120,11 +133,37 @@ class ValidationScope:
 
 
 @dataclass(frozen=True, slots=True)
+class HistoryObservation:
+    mode: str = "none"
+    availability: str = "not-requested"
+    complete: bool = False
+    current_revision: str | None = None
+    boundary: str = "none"
+    commit_count: int = 0
+    artifact_count: int = 0
+    limitations: tuple[str, ...] = ("Git-history-dependent lifecycle checks were not requested.",)
+
+    def as_json(self) -> HistoryJson:
+        return {
+            "mode": self.mode,
+            "availability": self.availability,
+            "complete": self.complete,
+            "currentRevision": self.current_revision,
+            "boundary": self.boundary,
+            "commitCount": self.commit_count,
+            "artifactCount": self.artifact_count,
+            "limitations": list(self.limitations),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class ValidationReport:
     profile: str
+    profile_version: str
     wem_reference: str
     target: str
     scope: ValidationScope
+    history: HistoryObservation
     findings: tuple[Finding, ...]
     limitations: tuple[str, ...]
 
@@ -135,11 +174,13 @@ class ValidationReport:
     def as_json(self) -> ReportJson:
         counts = Counter(item.outcome.value for item in self.findings)
         return {
-            "formatVersion": "0.2.0",
+            "formatVersion": "0.3.0",
             "profile": self.profile,
+            "profileVersion": self.profile_version,
             "wemReference": self.wem_reference,
             "target": self.target,
             "scope": self.scope.as_json(),
+            "history": self.history.as_json(),
             "findings": [item.as_json() for item in self.findings],
             "limitations": list(self.limitations),
             "summary": {

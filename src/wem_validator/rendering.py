@@ -14,10 +14,22 @@ def render_json(report: ValidationReport) -> str:
 def render_text(report: ValidationReport) -> str:
     lines = [
         f"Profile: {report.profile}",
+        f"Profile version: {report.profile_version}",
         f"WEM Reference: {report.wem_reference}",
         f"Target: {report.target}",
+        f"History: {report.history.mode} ({report.history.availability})",
         "",
     ]
+    if report.history.current_revision is not None:
+        lines.insert(5, f"Current revision: {report.history.current_revision}")
+        lines.insert(6, f"History boundary: {report.history.boundary}")
+        lines.insert(
+            7,
+            (
+                f"History observations: {report.history.commit_count} commit(s), "
+                f"{report.history.artifact_count} artifact(s)"
+            ),
+        )
     if report.findings:
         for finding in report.findings:
             location = finding.path

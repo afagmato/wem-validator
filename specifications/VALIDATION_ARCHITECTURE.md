@@ -1,7 +1,7 @@
 ---
 Document: Validation Architecture
 Title: WEM Validator Versioned Read-Only Validation Architecture
-Version: 0.1.0
+Version: 0.2.0
 Status: Draft
 Type: Architecture
 ASI: 4
@@ -23,7 +23,7 @@ It materializes the architecture accepted in `decisions/WEMV-ADR-002.md`. It doe
 
 ## Status and Authority
 
-This specification is Draft and is authorized for controlled application. The Project Owner accepted the first and second implementation Milestones with their documented limitations on 2026-11-04.
+This specification is Draft and is authorized for controlled application. The Project Owner accepted the first and second implementation Milestones with their documented limitations, accepted WEMV-ADR-005 to authorize the bounded third-Milestone implementation on 2026-11-04 and accepted the completed third Milestone with its documented limitations on 2026-11-06.
 
 Further product implementation SHALL require a bounded Milestone authorization and every applicable decision gate. First-Milestone acceptance does not release the Draft CLI or JSON interface as a compatibility commitment.
 
@@ -111,6 +111,7 @@ A validation profile is a product implementation of a declared subset of require
 Profiles SHALL:
 
 - identify the WEM version and Released status;
+- expose an independent profile implementation version for the executable rule coverage;
 - enumerate every implemented rule;
 - expose known gaps and unsupported constructs;
 - preserve rule identifiers across compatible corrections;
@@ -135,6 +136,26 @@ Manifest selection SHALL reject path escape, absolute patterns, unmatched includ
 
 Direct target validation SHALL remain available for focused checks without inventing implicit repository exclusions.
 
+## Explicit Git History Observation
+
+Git-dependent validation SHALL require explicit caller activation. Repository presence SHALL NOT enable history evaluation implicitly.
+
+The local Git adapter SHALL remain outside the rule-evaluation core and provide a normalized provider-independent observation. Its initial boundary is the first-parent history reachable from the current local `HEAD` plus the selected working-tree documents.
+
+The adapter SHALL:
+
+- require the selected target to be the resolved Git repository root;
+- use non-interactive read-only commands with optional Git locks disabled;
+- pass arguments without shell interpolation;
+- apply commit, artifact and blob-size limits;
+- reject shallow or otherwise insufficient history as incomplete evidence;
+- avoid checkout, index refresh, reference mutation, network access and repository configuration changes;
+- expose availability, completeness, revision identity, boundary and observation counts.
+
+The initial history rules evaluate current Status coherence, append-only Status History preservation, supported ADR lifecycle transitions, maintained-ADR presence and permanent identifier continuity. Git authorship, timestamps, signatures and commit messages SHALL NOT be interpreted as decision authority or human approval.
+
+First-parent evaluation does not represent alternate branches, discarded proposals, reflogs, unreachable objects or remote state. That boundary SHALL remain visible in every completed history report.
+
 ## Markdown Links and Heading Fragments
 
 The WEM 1.2.0 profile supports inline and reference-style Markdown links. External targets SHALL NOT be resolved over the network.
@@ -145,15 +166,15 @@ Raw HTML anchors and ambiguous constructs outside this subset SHALL remain expli
 
 ## Draft Report Contract
 
-The canonical Draft report projection is defined structurally by `contracts/finding-report/0.2.0.schema.json` and semantically by this specification.
+The current canonical Draft report projection is defined structurally by `contracts/finding-report/0.3.0.schema.json` and semantically by this specification. The earlier `contracts/finding-report/0.2.0.schema.json` remains maintained historical contract knowledge.
 
-The report includes the selected profile, WEM Reference, normalized target, explicit scope, findings, limitations and summary counts. Text and JSON projections SHALL continue to represent the same findings.
+The report includes the selected profile, independent profile implementation version, WEM Reference, normalized target, explicit scope, history-observation metadata, findings, limitations and summary counts. Text and JSON projections SHALL continue to represent the same findings.
 
 The JSON Schema SHALL be packaged with the executable wheel and verified byte-for-byte against the repository contract. Draft validation does not establish a Released compatibility commitment.
 
 ## Rule Inventory
 
-Every installed profile SHALL expose its rule identifiers, source references, descriptions and limitations without requiring a target validation run.
+Every installed profile SHALL expose its rule identifiers, source references, descriptions, profile implementation version and limitations without requiring a target validation run. The initial history-capable inventory projection uses Draft format 0.2.0.
 
 ## Determinism and Normalization
 
@@ -177,7 +198,8 @@ The initial implementation SHALL:
 - reject unsupported encoding rather than replace undecodable bytes silently;
 - bound individual files and total traversal;
 - avoid remote Markdown-link resolution;
-- expose Git-dependent checks as unavailable when the required repository observation is absent;
+- expose explicitly requested Git-dependent checks as failed when the required observation is unavailable or insufficient;
+- avoid target-file, Git-reference, index, object-database and configuration mutation;
 - redact or omit unnecessary file content from findings.
 
 ## First Milestone Architecture
@@ -215,6 +237,16 @@ The second Milestone operationalizes one repository-scoped run through an explic
 
 It SHALL preserve the first Milestone's provider-independent, deterministic and read-only boundaries. It does not add Git-history analysis, another WEM profile, target mutation, network resolution, certification or public release authority.
 
+## Third Milestone Architecture
+
+The third Milestone adds one optional local Git observation adapter behind a provider-independent history model and evaluates a bounded set of WEM 1.2.0 ADR lifecycle-preservation rules.
+
+It SHALL preserve filesystem-only behavior when history is not requested. When history is requested, unavailable, shallow or over-limit evidence SHALL fail explicitly rather than silently reduce coverage.
+
+The Milestone advances the Draft report contract to 0.3.0, retains the 0.2.0 Schema as historical knowledge and preserves all non-certification and human-authority boundaries. It does not add remote inspection, branch-policy enforcement, identity verification, release provenance, target mutation, another WEM profile or public release authority.
+
+The initial implementation identifies the WEM 1.2.0 profile coverage as Draft profile implementation version 0.3.0 and the executable package as version 0.2.0.
+
 ## Verification Responsibilities
 
 Verification SHALL demonstrate:
@@ -224,6 +256,9 @@ Verification SHALL demonstrate:
 - path-boundary and symbolic-link refusal behavior;
 - explicit unsupported and malformed-input results;
 - no target modification;
+- no target Git-state modification during history evaluation;
+- deterministic lifecycle findings over temporary Git repositories;
+- explicit history-unavailable, shallow and bounded-execution outcomes;
 - no provider-specific type in the validation core;
 - locked dependency and build reproducibility for the selected implementation profile;
 - successful validation of the intended WEM `v1.2.0` target within the declared rule coverage.

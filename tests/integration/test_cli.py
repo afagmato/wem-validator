@@ -97,8 +97,54 @@ def test_profile_inventory_is_explicit(capsys: pytest.CaptureFixture[str]) -> No
     assert main(["profile", "inspect", "--profile", "wem-1.2.0", "--format", "json"]) == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["profile"] == "wem-1.2.0"
+    assert payload["formatVersion"] == "0.2.0"
+    assert payload["profileVersion"] == "0.3.0"
     assert {item["ruleId"] for item in payload["rules"]} >= {
         "WEMV120-LINK-002",
         "WEMV120-LINK-003",
         "WEMV120-MANIFEST-001",
+        "WEMV120-HISTORY-005",
     }
+
+
+def test_git_history_mode_validates_the_maintained_repository(
+    repository_root: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert (
+        main(
+            [
+                "validate",
+                str(repository_root),
+                "--config",
+                str(repository_root / "wem-validator.toml"),
+                "--history",
+                "git",
+                "--format",
+                "json",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["history"]["availability"] == "complete"
+    assert payload["history"]["boundary"] == "first-parent"
+    assert payload["history"]["commitCount"] >= 1
+    assert not {item["ruleId"] for item in payload["findings"]} & {
+        "WEMV120-HISTORY-001",
+        "WEMV120-HISTORY-002",
+        "WEMV120-HISTORY-003",
+        "WEMV120-HISTORY-004",
+        "WEMV120-HISTORY-005",
+    }
+
+
+def test_requested_git_history_fails_explicitly_for_a_non_repository(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    (tmp_path / "input.md").write_text("# Input\n", encoding="utf-8")
+    assert main(["validate", str(tmp_path), "--history", "git", "--format", "json"]) == 1
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["history"]["availability"] == "unavailable"
+    assert {item["ruleId"] for item in payload["findings"]} == {"WEMV120-HISTORY-001"}
