@@ -98,7 +98,7 @@ def test_profile_inventory_is_explicit(capsys: pytest.CaptureFixture[str]) -> No
     payload = json.loads(capsys.readouterr().out)
     assert payload["profile"] == "wem-1.2.0"
     assert payload["formatVersion"] == "0.2.0"
-    assert payload["profileVersion"] == "0.3.0"
+    assert payload["profileVersion"] == "0.4.0"
     assert {item["ruleId"] for item in payload["rules"]} >= {
         "WEMV120-LINK-002",
         "WEMV120-LINK-003",

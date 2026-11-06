@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -117,6 +118,25 @@ def test_git_observation_is_complete_deterministic_and_read_only(tmp_path: Path)
     assert evaluate_lifecycle_history(first, profile=resolve_profile("wem-1.2.0")) == ()
     assert _git(repository, "status", "--porcelain=v1") == status_before
     assert _git(repository, "show-ref") == refs_before
+
+
+def test_legacy_preamble_and_status_column_order_are_history_compatible(
+    tmp_path: Path,
+    repository_root: Path,
+) -> None:
+    repository = _repository(tmp_path / "repository")
+    decisions = repository / "decisions"
+    decisions.mkdir()
+    shutil.copyfile(
+        repository_root / "tests" / "fixtures" / "valid" / "decisions" / "LEGACY-ADR-001.md",
+        decisions / "LEGACY-ADR-001.md",
+    )
+    _commit(repository, "add historical decision")
+
+    findings = evaluate_lifecycle_history(
+        _observe(repository), profile=resolve_profile("wem-1.2.0")
+    )
+    assert findings == ()
 
 
 def test_lifecycle_rules_detect_rewrite_invalid_transition_removal_and_reuse(

@@ -12,6 +12,16 @@ _REFERENCE_DEFINITION = re.compile(r'^\s{0,3}\[([^\]]+)\]:\s*(?:<([^>]+)>|(\S+))
 _FULL_REFERENCE = re.compile(r"!?\[([^\]]*)\]\[([^\]]*)\]")
 _SHORTCUT_REFERENCE = re.compile(r"!?\[([^\]\n]+)\](?![\[(])")
 _RAW_HTML_ANCHOR = re.compile(r"<a\s+[^>]*(?:id|name)\s*=", re.IGNORECASE)
+_ADR_IDENTITY_FIELDS = {
+    "Document",
+    "Identifier",
+    "Title",
+    "Status",
+    "Created Date",
+    "ASI Level",
+    "Decision Authority",
+    "WEM Reference",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,6 +44,7 @@ class MarkdownLink:
 @dataclass(frozen=True, slots=True)
 class ParsedMarkdown:
     frontmatter: Frontmatter
+    metadata: Frontmatter
     headings: dict[str, tuple[int, ...]]
     links: tuple[MarkdownLink, ...]
     duplicate_reference_lines: tuple[int, ...]
@@ -107,6 +118,7 @@ def parse_markdown(text: str) -> ParsedMarkdown:
 
     return ParsedMarkdown(
         frontmatter=frontmatter,
+        metadata=_normalized_metadata(lines, frontmatter, headings),
         headings={name: tuple(values) for name, values in headings.items()},
         links=tuple(links),
         duplicate_reference_lines=tuple(duplicate_references),
@@ -180,3 +192,94 @@ def _parse_frontmatter(lines: list[str]) -> Frontmatter:
         values[key] = value
         locations[key] = index
     return Frontmatter(values, locations, True, False, (), ())
+
+
+def _normalized_metadata(
+    lines: list[str],
+    frontmatter: Frontmatter,
+    headings: dict[str, list[int]],
+) -> Frontmatter:
+    base = frontmatter if frontmatter.present else _parse_field_preamble(lines)
+    values = dict(base.values)
+    locations = dict(base.lines)
+    for field in _ADR_IDENTITY_FIELDS - {"Document"}:
+        if field in values:
+            continue
+        heading_lines = headings.get(field)
+        if not heading_lines:
+            continue
+        value = _section_value(lines, heading_lines[0])
+        if value is not None:
+            values[field] = value
+            locations[field] = heading_lines[0]
+    return Frontmatter(
+        values=values,
+        lines=locations,
+        present=base.present or bool(values),
+        closed=base.closed,
+        duplicate_keys=base.duplicate_keys,
+        malformed_lines=base.malformed_lines,
+    )
+
+
+def _parse_field_preamble(lines: list[str]) -> Frontmatter:
+    values: dict[str, str] = {}
+    locations: dict[str, int] = {}
+    duplicates: list[str] = []
+    malformed: list[int] = []
+    observed = False
+    for index, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if stripped == "---":
+            return Frontmatter(
+                values,
+                locations,
+                observed,
+                True,
+                tuple(sorted(set(duplicates))),
+                tuple(malformed),
+            )
+        if stripped.startswith("#"):
+            break
+        if not stripped:
+            continue
+        if ":" not in line:
+            if observed:
+                malformed.append(index)
+            else:
+                return Frontmatter({}, {}, False, True, (), ())
+            continue
+        key, value = (part.strip() for part in line.split(":", 1))
+        if key not in _ADR_IDENTITY_FIELDS or not value:
+            if observed:
+                malformed.append(index)
+                continue
+            return Frontmatter({}, {}, False, True, (), ())
+        observed = True
+        if key in values:
+            duplicates.append(key)
+            continue
+        values[key] = value
+        locations[key] = index
+    return Frontmatter(
+        values,
+        locations,
+        observed,
+        True,
+        tuple(sorted(set(duplicates))),
+        tuple(malformed),
+    )
+
+
+def _section_value(lines: list[str], heading_line: int) -> str | None:
+    for line in lines[heading_line:]:
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            return None
+        if not stripped:
+            continue
+        value = stripped.strip("`").strip()
+        if value.endswith("."):
+            value = value[:-1].rstrip()
+        return value or None
+    return None

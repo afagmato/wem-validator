@@ -1,7 +1,7 @@
 ---
 Document: Validation Architecture
 Title: WEM Validator Versioned Read-Only Validation Architecture
-Version: 0.2.0
+Version: 0.3.0
 Status: Draft
 Type: Architecture
 ASI: 4
@@ -23,7 +23,7 @@ It materializes the architecture accepted in `decisions/WEMV-ADR-002.md`. It doe
 
 ## Status and Authority
 
-This specification is Draft and is authorized for controlled application. The Project Owner accepted the first and second implementation Milestones with their documented limitations, accepted WEMV-ADR-005 to authorize the bounded third-Milestone implementation on 2026-11-04 and accepted the completed third Milestone with its documented limitations on 2026-11-06.
+This specification is Draft and is authorized for controlled application. The Project Owner accepted the first four implementation Milestones with their documented limitations, including the completed fourth Milestone on 2026-11-06.
 
 Further product implementation SHALL require a bounded Milestone authorization and every applicable decision gate. First-Milestone acceptance does not release the Draft CLI or JSON interface as a compatibility commitment.
 
@@ -74,6 +74,21 @@ The Document Model represents only the parsed facts needed by implemented rules,
 - document identity fields required for cross-checks.
 
 Parsing SHALL preserve enough source location information to produce deterministic findings. It SHALL NOT interpret normative prose dynamically.
+
+### ADR Representation Normalization
+
+ADR validation SHALL operate on normalized identity and lifecycle facts rather than require one repository-specific presentation.
+
+The initial normalization boundary supports:
+
+- bounded YAML-like frontmatter;
+- bounded leading field preambles;
+- canonical ADR sections for missing identity values;
+- Status History tables whose recognized columns use canonical or explicitly supported historical labels in any order.
+
+Representation support is product behavior and SHALL NOT be described as a WEM file-format requirement. When required facts cannot be extracted safely, the result SHALL be explicit and unsupported rather than a fabricated missing-frontmatter conformance error.
+
+Rules whose semantics vary by WEM version SHALL use the ADR's normalized WEM Reference. The WEM 1.2.0 profile MAY interpret normalized historical WEM 1.0.0 ADR facts only where the applicable Released requirements are confirmed as shared. That bounded compatibility SHALL NOT be presented as a complete WEM 1.0.0 profile.
 
 ### Rule Engine
 
@@ -245,7 +260,13 @@ It SHALL preserve filesystem-only behavior when history is not requested. When h
 
 The Milestone advances the Draft report contract to 0.3.0, retains the 0.2.0 Schema as historical knowledge and preserves all non-certification and human-authority boundaries. It does not add remote inspection, branch-policy enforcement, identity verification, release provenance, target mutation, another WEM profile or public release authority.
 
-The initial implementation identifies the WEM 1.2.0 profile coverage as Draft profile implementation version 0.3.0 and the executable package as version 0.2.0.
+The third-Milestone implementation identified the WEM 1.2.0 profile coverage as Draft profile implementation version 0.3.0 and the executable package as version 0.2.0.
+
+## Fourth Milestone Architecture
+
+The fourth Milestone introduces the normalized ADR representation boundary and WEM-reference-aware compatibility defined above. It preserves rule identifiers and report Schema 0.3.0 while advancing the observable profile implementation to 0.4.0 and the package to 0.3.0.
+
+The Milestone SHALL eliminate representation-driven false positives for the supported WEM Orchestrator historical ADR form, retain current frontmatter behavior and continue to expose genuinely missing normative content. It does not implement arbitrary decision-record formats or a complete WEM 1.0.0 profile.
 
 ## Verification Responsibilities
 
@@ -259,6 +280,8 @@ Verification SHALL demonstrate:
 - no target Git-state modification during history evaluation;
 - deterministic lifecycle findings over temporary Git repositories;
 - explicit history-unavailable, shallow and bounded-execution outcomes;
+- equivalent ADR findings across supported frontmatter and field-preamble representations;
+- WEM-reference-aware preservation of valid historical ADR knowledge;
 - no provider-specific type in the validation core;
 - locked dependency and build reproducibility for the selected implementation profile;
 - successful validation of the intended WEM `v1.2.0` target within the declared rule coverage.

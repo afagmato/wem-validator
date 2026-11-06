@@ -58,3 +58,45 @@ def test_duplicate_definitions_and_raw_html_anchors_are_visible() -> None:
     parsed = parse_markdown('[target]: first.md\n[target]: second.md\n<a id="legacy"></a>\n')
     assert parsed.duplicate_reference_lines == (2,)
     assert parsed.raw_html_anchor_lines == (3,)
+
+
+def test_legacy_field_preamble_and_sections_normalize_adr_identity() -> None:
+    parsed = parse_markdown(
+        """Document: Architecture Decision Record
+
+Identifier: EXAMPLE-ADR-001
+
+Status: Accepted
+
+ASI Level: ASI-4
+
+WEM Reference: WEM 1.0.0 — Released
+
+---
+
+# EXAMPLE-ADR-001 — Example
+
+## Title
+
+Example decision
+
+## Created Date
+
+2026-01-01
+
+## Decision Authority
+
+Project Owner.
+"""
+    )
+    assert parsed.frontmatter.present is False
+    assert parsed.metadata.values == {
+        "Document": "Architecture Decision Record",
+        "Identifier": "EXAMPLE-ADR-001",
+        "Status": "Accepted",
+        "ASI Level": "ASI-4",
+        "WEM Reference": "WEM 1.0.0 — Released",
+        "Title": "Example decision",
+        "Created Date": "2026-01-01",
+        "Decision Authority": "Project Owner",
+    }

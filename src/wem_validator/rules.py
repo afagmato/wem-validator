@@ -15,16 +15,6 @@ from wem_validator.profiles import ValidationProfile
 _SEMVER = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 _ADR_STATUSES = {"Proposed", "Accepted", "Rejected", "Withdrawn", "Superseded", "Retired"}
 _DOCUMENT_STATUSES = {"Draft", "Released", "Retired"}
-_ADR_FIELDS = {
-    "Document",
-    "Identifier",
-    "Title",
-    "Status",
-    "Created Date",
-    "ASI Level",
-    "Decision Authority",
-    "WEM Reference",
-}
 _DOCUMENT_FIELDS = {
     "Document",
     "Title",
@@ -35,6 +25,15 @@ _DOCUMENT_FIELDS = {
     "Language",
     "Owner",
     "Methodology",
+}
+_ADR_IDENTITY_FIELDS = {
+    "Identifier",
+    "Title",
+    "Status",
+    "Created Date",
+    "ASI Level",
+    "Decision Authority",
+    "WEM Reference",
 }
 _ADR_SECTIONS = {
     "Identifier",
@@ -75,19 +74,20 @@ def evaluate_document(
 
     findings: list[Finding] = []
     frontmatter = parsed.frontmatter
-    values = frontmatter.values
+    metadata = parsed.metadata
+    values = metadata.values
     is_decision_path = item.relative_path.startswith("decisions/")
     is_adr = values.get("Document") == "Architecture Decision Record" or is_decision_path
 
-    if is_decision_path and not frontmatter.present:
+    if is_decision_path and not metadata.present:
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-001",
-                Outcome.ERROR,
+                "WEMV120-INPUT-001",
+                Outcome.UNSUPPORTED,
                 item.relative_path,
-                "ADR files require frontmatter at the start of the document.",
-                line=1,
+                "ADR identity could not be extracted from a supported representation.",
+                limitations=("The document may use an unsupported decision-record format.",),
             )
         )
     if frontmatter.present and not frontmatter.closed:
@@ -101,32 +101,32 @@ def evaluate_document(
                 line=1,
             )
         )
-    for key in frontmatter.duplicate_keys:
+    declared = frontmatter if frontmatter.present else metadata
+    for key in declared.duplicate_keys:
         findings.append(
             _finding(
                 profile,
                 "WEMV120-FM-001",
                 Outcome.ERROR,
                 item.relative_path,
-                f"Frontmatter key is duplicated: {key}.",
-                line=frontmatter.lines.get(key),
+                f"Document metadata key is duplicated: {key}.",
+                line=declared.lines.get(key),
             )
         )
-    for line in frontmatter.malformed_lines:
+    for line in declared.malformed_lines:
         findings.append(
             _finding(
                 profile,
                 "WEMV120-FM-001",
                 Outcome.ERROR,
                 item.relative_path,
-                "Frontmatter line is not a supported non-empty key-value pair.",
+                "Document metadata line is not a supported non-empty key-value pair.",
                 line=line,
             )
         )
 
-    if frontmatter.present and frontmatter.closed:
-        required = _ADR_FIELDS if is_adr else _DOCUMENT_FIELDS
-        for field in sorted(required - values.keys()):
+    if frontmatter.present and frontmatter.closed and not is_adr:
+        for field in sorted(_DOCUMENT_FIELDS - frontmatter.values.keys()):
             findings.append(
                 _finding(
                     profile,
@@ -137,7 +137,35 @@ def evaluate_document(
                     line=1,
                 )
             )
+    if metadata.present:
         findings.extend(_validate_identity_fields(item, profile, is_adr, parsed))
+
+    if is_adr:
+        for field in sorted(_ADR_IDENTITY_FIELDS - values.keys()):
+            if field not in parsed.headings:
+                continue
+            findings.append(
+                _finding(
+                    profile,
+                    "WEMV120-INPUT-001",
+                    Outcome.UNSUPPORTED,
+                    item.relative_path,
+                    f"ADR field could not be extracted from its canonical section: {field}.",
+                    limitations=("The section representation is outside the supported subset.",),
+                )
+            )
+        reference = values.get("WEM Reference")
+        if reference is not None and not _supported_adr_reference(reference):
+            findings.append(
+                _finding(
+                    profile,
+                    "WEMV120-INPUT-001",
+                    Outcome.UNSUPPORTED,
+                    item.relative_path,
+                    f"ADR WEM Reference is outside supported compatibility: {reference}.",
+                    line=metadata.lines.get("WEM Reference"),
+                )
+            )
 
     if is_adr:
         findings.extend(_validate_adr(item, profile, parsed))
@@ -176,7 +204,7 @@ def _validate_identity_fields(
     parsed: ParsedMarkdown,
 ) -> list[Finding]:
     findings: list[Finding] = []
-    values = parsed.frontmatter.values
+    values = parsed.metadata.values if is_adr else parsed.frontmatter.values
     status = values.get("Status")
     allowed = _ADR_STATUSES if is_adr else _DOCUMENT_STATUSES
     if status is not None and status not in allowed:
@@ -187,7 +215,7 @@ def _validate_identity_fields(
                 Outcome.ERROR,
                 item.relative_path,
                 f"Unsupported lifecycle status for this document kind: {status}.",
-                line=parsed.frontmatter.lines.get("Status"),
+                line=(parsed.metadata if is_adr else parsed.frontmatter).lines.get("Status"),
             )
         )
     version = values.get("Version")
@@ -204,7 +232,7 @@ def _validate_identity_fields(
         )
     asi_member = "ASI Level" if is_adr else "ASI"
     asi = values.get(asi_member)
-    if asi is not None and asi not in {"1", "2", "3", "4", "5"}:
+    if asi is not None and _asi_level(asi) is None:
         findings.append(
             _finding(
                 profile,
@@ -212,7 +240,7 @@ def _validate_identity_fields(
                 Outcome.ERROR,
                 item.relative_path,
                 f"{asi_member} must be an integer from 1 through 5.",
-                line=parsed.frontmatter.lines.get(asi_member),
+                line=(parsed.metadata if is_adr else parsed.frontmatter).lines.get(asi_member),
             )
         )
     return findings
@@ -234,7 +262,7 @@ def _validate_adr(
                 f"Required ADR section is missing: {section}.",
             )
         )
-    asi = parsed.frontmatter.values.get("ASI Level")
+    asi = _asi_level(parsed.metadata.values.get("ASI Level"))
     if asi in {"4", "5"} and "Alternatives Considered" not in parsed.headings:
         findings.append(
             _finding(
@@ -245,7 +273,7 @@ def _validate_adr(
                 "ASI-4 and ASI-5 ADRs require Alternatives Considered.",
             )
         )
-    identifier = parsed.frontmatter.values.get("Identifier")
+    identifier = parsed.metadata.values.get("Identifier")
     if identifier is not None:
         if Path(item.relative_path).stem != identifier:
             findings.append(
@@ -255,7 +283,7 @@ def _validate_adr(
                     Outcome.ERROR,
                     item.relative_path,
                     "ADR filename stem does not match its Identifier.",
-                    line=parsed.frontmatter.lines.get("Identifier"),
+                    line=parsed.metadata.lines.get("Identifier"),
                 )
             )
         level_one = tuple(name for name in parsed.headings if name.startswith(identifier))
@@ -383,3 +411,15 @@ def _finding(
         source=definition.source,
         limitations=limitations,
     )
+
+
+def _asi_level(value: str | None) -> str | None:
+    if value is None:
+        return None
+    match = re.match(r"^(?:ASI-)?([1-5])(?:\b|\s|—|-|$)", value)
+    return match.group(1) if match is not None else None
+
+
+def _supported_adr_reference(value: str) -> bool:
+    normalized = value.removesuffix(".")
+    return normalized in {"WEM 1.0.0 — Released", "WEM 1.2.0 — Released"}

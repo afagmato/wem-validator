@@ -23,7 +23,6 @@ def test_invalid_fixture_reports_independent_rule_failures(repository_root: Path
     )
     rule_ids = {item.rule_id for item in report.findings}
     assert {
-        "WEMV120-FM-002",
         "WEMV120-FM-003",
         "WEMV120-LINK-001",
         "WEMV120-ADR-001",
@@ -123,3 +122,64 @@ def test_manifest_scope_is_reported_and_read_only(tmp_path: Path) -> None:
     assert report.scope.mode == "manifest"
     assert report.scope.excluded_path_counts == (("fixtures/**", 1),)
     assert before == after
+
+
+def test_unextractable_adr_identity_is_explicitly_unsupported(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "EXAMPLE-ADR-001.md").write_text(
+        """# Example
+
+## Identifier
+
+## Title
+
+Example
+
+## Status
+
+Proposed
+
+## Created Date
+
+2026-11-06
+
+## Status History
+
+| Date | Status | Decision Authority | Reason |
+| --- | --- | --- | --- |
+| 2026-11-06 | Proposed | Project Owner | Evaluation opened. |
+
+## Decision Authority
+
+Project Owner
+
+## WEM Reference
+
+WEM 1.2.0 — Released
+
+## Context
+
+Context.
+
+## Decision
+
+Decision.
+
+## Consequences
+
+Consequences.
+
+## ASI Level
+
+ASI-3
+
+## Related Principles
+
+WEM-P-003.
+""",
+        encoding="utf-8",
+    )
+    report = validate_target(tmp_path, profile_id="wem-1.2.0")
+    assert {finding.rule_id for finding in report.findings} == {"WEMV120-INPUT-001"}
+    assert report.findings[0].outcome is Outcome.UNSUPPORTED

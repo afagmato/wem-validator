@@ -23,13 +23,13 @@ class ValidationProfile:
 
 WEM_120 = ValidationProfile(
     identifier="wem-1.2.0",
-    version="0.3.0",
+    version="0.4.0",
     wem_reference="WEM 1.2.0 — Released",
     rules=(
         RuleDefinition(
             "WEMV120-FM-001",
-            "WEM 1.2.0 document structures",
-            "Required documents have bounded, parseable frontmatter.",
+            "WEMV-ADR-006#Normalized ADR model",
+            "Supported document metadata representations are bounded and parseable.",
         ),
         RuleDefinition(
             "WEMV120-FM-002",
@@ -111,6 +111,10 @@ WEM_120 = ValidationProfile(
         "Raw HTML anchors and ambiguous Markdown constructs remain outside the supported subset.",
         "Frontmatter supports the flat key-value form used by WEM 1.2.0.",
         "Git lifecycle coverage is limited to explicitly requested local first-parent history.",
+        (
+            "Historical WEM 1.0 ADR compatibility is limited to normalized requirements "
+            "shared with WEM 1.2."
+        ),
     ),
 )
 

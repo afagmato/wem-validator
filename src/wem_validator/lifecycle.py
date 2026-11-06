@@ -37,6 +37,7 @@ class AdrLifecycleRecord:
     identifier: str
     title: str
     created_date: str
+    wem_reference: str
     status: str
     status_history: tuple[StatusEntry, ...]
     history_parseable: bool
@@ -138,6 +139,15 @@ def evaluate_lifecycle_history(
                             f"Permanent identifier {identifier} changed its Created Date.",
                         )
                     )
+                if _reference(earlier.wem_reference) != _reference(record.wem_reference):
+                    findings.append(
+                        _finding(
+                            profile,
+                            "WEMV120-HISTORY-005",
+                            record.path,
+                            f"Permanent identifier {identifier} changed its WEM Reference.",
+                        )
+                    )
             elif identifier in seen:
                 first = seen[identifier]
                 findings.append(
@@ -219,7 +229,7 @@ def _validate_current_record(
 
 def _record(artifact: HistoryArtifact) -> AdrLifecycleRecord:
     parsed = parse_markdown(artifact.text)
-    values = parsed.frontmatter.values
+    values = parsed.metadata.values
     rows, parseable = _status_history(artifact.text)
     return AdrLifecycleRecord(
         revision=artifact.revision,
@@ -227,6 +237,7 @@ def _record(artifact: HistoryArtifact) -> AdrLifecycleRecord:
         identifier=values.get("Identifier", ""),
         title=values.get("Title", ""),
         created_date=values.get("Created Date", ""),
+        wem_reference=values.get("WEM Reference", ""),
         status=values.get("Status", ""),
         status_history=rows,
         history_parseable=parseable,
@@ -245,6 +256,7 @@ def _status_history(text: str) -> tuple[tuple[StatusEntry, ...], bool]:
 
     entries: list[StatusEntry] = []
     parseable = True
+    columns: dict[str, int] | None = None
     for line in lines[start:]:
         stripped = line.strip()
         if stripped.startswith("## "):
@@ -252,15 +264,25 @@ def _status_history(text: str) -> tuple[tuple[StatusEntry, ...], bool]:
         if not stripped.startswith("|"):
             continue
         cells = tuple(cell.strip() for cell in stripped.strip("|").split("|"))
-        if cells == ("Date", "Status", "Decision Authority", "Reason"):
-            continue
         if cells and all(_TABLE_SEPARATOR.fullmatch(cell) for cell in cells):
             continue
-        if len(cells) != 4 or not all(cells):
+        if columns is None:
+            columns = _status_columns(cells)
+            if columns is None:
+                parseable = False
+            continue
+        if len(cells) != len(columns) or not all(cells):
             parseable = False
             continue
-        entries.append(StatusEntry(*cells))
-    return tuple(entries), parseable
+        entries.append(
+            StatusEntry(
+                date=cells[columns["date"]],
+                status=cells[columns["status"]],
+                authority=cells[columns["authority"]],
+                reason=cells[columns["reason"]],
+            )
+        )
+    return tuple(entries), parseable and columns is not None
 
 
 def _is_prefix(
@@ -272,6 +294,27 @@ def _is_prefix(
 
 def _transition_allowed(earlier: str, later: str) -> bool:
     return later in _ALLOWED_TRANSITIONS.get(earlier, frozenset())
+
+
+def _status_columns(cells: tuple[str, ...]) -> dict[str, int] | None:
+    aliases = {
+        "date": "date",
+        "status": "status",
+        "decision authority": "authority",
+        "authority": "authority",
+        "reason": "reason",
+    }
+    columns: dict[str, int] = {}
+    for index, cell in enumerate(cells):
+        semantic = aliases.get(" ".join(cell.casefold().split()))
+        if semantic is None or semantic in columns:
+            return None
+        columns[semantic] = index
+    return columns if set(columns) == {"date", "status", "authority", "reason"} else None
+
+
+def _reference(value: str) -> str:
+    return value.removesuffix(".")
 
 
 def _revision(value: str) -> str:
