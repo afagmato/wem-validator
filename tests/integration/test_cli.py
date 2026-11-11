@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -148,3 +149,34 @@ def test_requested_git_history_fails_explicitly_for_a_non_repository(
     payload = json.loads(capsys.readouterr().out)
     assert payload["history"]["availability"] == "unavailable"
     assert {item["ruleId"] for item in payload["findings"]} == {"WEMV120-HISTORY-001"}
+
+
+def test_wem_130_profile_inventory_cites_wem_130_sources(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert main(["profile", "inspect", "--profile", "wem-1.3.0", "--format", "json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["profile"] == "wem-1.3.0"
+    assert payload["wemReference"] == "WEM 1.3.0 — Released"
+    sources = {item["source"] for item in payload["rules"]}
+    assert "ADR_SPECIFICATION.md@1.2.0#Required Content" in sources
+    assert not any("@1.1.0" in source for source in sources)
+    assert len(payload["rules"]) == 16
+
+
+def test_manifest_can_select_wem_130_profile(
+    tmp_path: Path,
+    repository_root: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    target = tmp_path / "target"
+    shutil.copytree(repository_root / "tests" / "fixtures" / "valid", target)
+    (target / "wem-validator.toml").write_text(
+        'format-version = "0.1.0"\nprofile = "wem-1.3.0"\ninclude = ["**/*.md"]\nexclude = []\n',
+        encoding="utf-8",
+    )
+    arguments = ["validate", str(target), "--config", str(target / "wem-validator.toml")]
+    assert main([*arguments, "--format", "json"]) == 0
+    assert json.loads(capsys.readouterr().out)["profile"] == "wem-1.3.0"
+    assert main([*arguments, "--profile", "wem-1.2.0", "--format", "json"]) == 2
+    assert json.loads(capsys.readouterr().err)["error"]["code"] == "invalid_manifest"

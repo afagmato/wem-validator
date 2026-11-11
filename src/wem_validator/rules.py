@@ -1,4 +1,4 @@
-"""WEM 1.2.0 structural rule evaluation."""
+"""Profile-parameterized WEM structural rule evaluation."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 from wem_validator.discovery import DiscoveredFile
 from wem_validator.model import Finding, Outcome
 from wem_validator.parsing import ParsedMarkdown, heading_anchors
-from wem_validator.profiles import ValidationProfile
+from wem_validator.profiles import ValidationProfile, rule_identifier
 
 _SEMVER = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 _ADR_STATUSES = {"Proposed", "Accepted", "Rejected", "Withdrawn", "Superseded", "Retired"}
@@ -63,7 +63,7 @@ def evaluate_document(
         return (
             _finding(
                 profile,
-                "WEMV120-INPUT-001",
+                "INPUT-001",
                 Outcome.UNSUPPORTED,
                 item.relative_path,
                 item.issue,
@@ -83,7 +83,7 @@ def evaluate_document(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-INPUT-001",
+                "INPUT-001",
                 Outcome.UNSUPPORTED,
                 item.relative_path,
                 "ADR identity could not be extracted from a supported representation.",
@@ -94,7 +94,7 @@ def evaluate_document(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-001",
+                "FM-001",
                 Outcome.ERROR,
                 item.relative_path,
                 "Frontmatter is not closed by a second delimiter.",
@@ -106,7 +106,7 @@ def evaluate_document(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-001",
+                "FM-001",
                 Outcome.ERROR,
                 item.relative_path,
                 f"Document metadata key is duplicated: {key}.",
@@ -117,7 +117,7 @@ def evaluate_document(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-001",
+                "FM-001",
                 Outcome.ERROR,
                 item.relative_path,
                 "Document metadata line is not a supported non-empty key-value pair.",
@@ -130,7 +130,7 @@ def evaluate_document(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-FM-002",
+                    "FM-002",
                     Outcome.ERROR,
                     item.relative_path,
                     f"Required frontmatter field is missing: {field}.",
@@ -147,7 +147,7 @@ def evaluate_document(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-INPUT-001",
+                    "INPUT-001",
                     Outcome.UNSUPPORTED,
                     item.relative_path,
                     f"ADR field could not be extracted from its canonical section: {field}.",
@@ -155,11 +155,11 @@ def evaluate_document(
                 )
             )
         reference = values.get("WEM Reference")
-        if reference is not None and not _supported_adr_reference(reference):
+        if reference is not None and not _supported_adr_reference(reference, profile):
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-INPUT-001",
+                    "INPUT-001",
                     Outcome.UNSUPPORTED,
                     item.relative_path,
                     f"ADR WEM Reference is outside supported compatibility: {reference}.",
@@ -175,7 +175,7 @@ def evaluate_document(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-LINK-002",
+                "LINK-002",
                 Outcome.ERROR,
                 item.relative_path,
                 "Reference-style Markdown link label is defined more than once.",
@@ -186,7 +186,7 @@ def evaluate_document(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-INPUT-001",
+                "INPUT-001",
                 Outcome.UNSUPPORTED,
                 item.relative_path,
                 "Raw HTML anchors are outside the supported heading-fragment subset.",
@@ -211,7 +211,7 @@ def _validate_identity_fields(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-003",
+                "FM-003",
                 Outcome.ERROR,
                 item.relative_path,
                 f"Unsupported lifecycle status for this document kind: {status}.",
@@ -223,7 +223,7 @@ def _validate_identity_fields(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-002",
+                "FM-002",
                 Outcome.ERROR,
                 item.relative_path,
                 "Version must use semantic version form X.Y.Z.",
@@ -236,7 +236,7 @@ def _validate_identity_fields(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-FM-002",
+                "FM-002",
                 Outcome.ERROR,
                 item.relative_path,
                 f"{asi_member} must be an integer from 1 through 5.",
@@ -256,7 +256,7 @@ def _validate_adr(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-ADR-001",
+                "ADR-001",
                 Outcome.ERROR,
                 item.relative_path,
                 f"Required ADR section is missing: {section}.",
@@ -267,7 +267,7 @@ def _validate_adr(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-ADR-002",
+                "ADR-002",
                 Outcome.ERROR,
                 item.relative_path,
                 "ASI-4 and ASI-5 ADRs require Alternatives Considered.",
@@ -279,7 +279,7 @@ def _validate_adr(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-ADR-003",
+                    "ADR-003",
                     Outcome.ERROR,
                     item.relative_path,
                     "ADR filename stem does not match its Identifier.",
@@ -291,7 +291,7 @@ def _validate_adr(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-ADR-003",
+                    "ADR-003",
                     Outcome.ERROR,
                     item.relative_path,
                     "ADR title heading does not begin with its Identifier.",
@@ -315,7 +315,7 @@ def _validate_links(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-LINK-002",
+                    "LINK-002",
                     Outcome.ERROR,
                     item.relative_path,
                     f"Reference-style Markdown link has no definition: {link.reference_label}.",
@@ -329,7 +329,7 @@ def _validate_links(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-LINK-001",
+                    "LINK-001",
                     Outcome.ERROR,
                     item.relative_path,
                     "Markdown link target is malformed.",
@@ -351,7 +351,7 @@ def _validate_links(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-LINK-001",
+                    "LINK-001",
                     Outcome.ERROR,
                     item.relative_path,
                     explanation,
@@ -366,7 +366,7 @@ def _validate_links(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-INPUT-001",
+                    "INPUT-001",
                     Outcome.UNSUPPORTED,
                     item.relative_path,
                     "Heading fragment target is outside the evaluated Markdown scope.",
@@ -380,7 +380,7 @@ def _validate_links(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-LINK-003",
+                    "LINK-003",
                     Outcome.ERROR,
                     item.relative_path,
                     f"Markdown heading fragment does not exist: #{split.fragment}.",
@@ -392,7 +392,7 @@ def _validate_links(
 
 def _finding(
     profile: ValidationProfile,
-    rule_id: str,
+    rule_key: str,
     outcome: Outcome,
     path: str,
     explanation: str,
@@ -400,6 +400,7 @@ def _finding(
     line: int | None = None,
     limitations: tuple[str, ...] = (),
 ) -> Finding:
+    rule_id = rule_identifier(profile, rule_key)
     definition = next(item for item in profile.rules if item.identifier == rule_id)
     return Finding.create(
         rule_id=rule_id,
@@ -420,6 +421,5 @@ def _asi_level(value: str | None) -> str | None:
     return match.group(1) if match is not None else None
 
 
-def _supported_adr_reference(value: str) -> bool:
-    normalized = value.removesuffix(".")
-    return normalized in {"WEM 1.0.0 — Released", "WEM 1.2.0 — Released"}
+def _supported_adr_reference(value: str, profile: ValidationProfile) -> bool:
+    return value.removesuffix(".") in profile.supported_adr_references

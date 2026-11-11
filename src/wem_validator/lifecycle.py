@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from wem_validator.history import GitHistoryResult, HistoryArtifact
 from wem_validator.model import Finding, Outcome
 from wem_validator.parsing import parse_markdown
-from wem_validator.profiles import ValidationProfile
+from wem_validator.profiles import ValidationProfile, rule_identifier
 
 _TABLE_SEPARATOR = re.compile(r"^:?-{3,}:?$")
 _ALLOWED_TRANSITIONS = {
@@ -52,7 +52,7 @@ def evaluate_lifecycle_history(
         return (
             _finding(
                 profile,
-                "WEMV120-HISTORY-001",
+                "HISTORY-001",
                 ".",
                 f"Requested Git history could not be evaluated: {history.failure}.",
                 limitations=history.observation.limitations,
@@ -72,7 +72,7 @@ def evaluate_lifecycle_history(
                 findings.append(
                     _finding(
                         profile,
-                        "WEMV120-HISTORY-005",
+                        "HISTORY-005",
                         record.path,
                         f"ADR identity is unavailable at revision {_revision(record.revision)}.",
                     )
@@ -86,7 +86,7 @@ def evaluate_lifecycle_history(
                 findings.append(
                     _finding(
                         profile,
-                        "WEMV120-HISTORY-005",
+                        "HISTORY-005",
                         matches[0].path,
                         (
                             f"ADR identifier {identifier} is associated with multiple artifacts at "
@@ -108,7 +108,7 @@ def evaluate_lifecycle_history(
                     findings.append(
                         _finding(
                             profile,
-                            "WEMV120-HISTORY-003",
+                            "HISTORY-003",
                             record.path,
                             (
                                 f"Status History for {identifier} changed an earlier row "
@@ -121,7 +121,7 @@ def evaluate_lifecycle_history(
                     findings.append(
                         _finding(
                             profile,
-                            "WEMV120-HISTORY-004",
+                            "HISTORY-004",
                             record.path,
                             (
                                 f"Observed lifecycle transition for {identifier} is not allowed: "
@@ -134,7 +134,7 @@ def evaluate_lifecycle_history(
                     findings.append(
                         _finding(
                             profile,
-                            "WEMV120-HISTORY-005",
+                            "HISTORY-005",
                             record.path,
                             f"Permanent identifier {identifier} changed its Created Date.",
                         )
@@ -143,7 +143,7 @@ def evaluate_lifecycle_history(
                     findings.append(
                         _finding(
                             profile,
-                            "WEMV120-HISTORY-005",
+                            "HISTORY-005",
                             record.path,
                             f"Permanent identifier {identifier} changed its WEM Reference.",
                         )
@@ -153,7 +153,7 @@ def evaluate_lifecycle_history(
                 findings.append(
                     _finding(
                         profile,
-                        "WEMV120-HISTORY-005",
+                        "HISTORY-005",
                         record.path,
                         (
                             f"Permanent identifier {identifier} reappeared after removal; "
@@ -169,7 +169,7 @@ def evaluate_lifecycle_history(
                 findings.append(
                     _finding(
                         profile,
-                        "WEMV120-HISTORY-003",
+                        "HISTORY-003",
                         record.path,
                         (
                             f"Maintained ADR {identifier} disappeared after revision "
@@ -192,7 +192,7 @@ def _validate_current_record(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-HISTORY-002",
+                "HISTORY-002",
                 record.path,
                 f"Current ADR {record.identifier} has no parseable Status History rows.",
             )
@@ -203,7 +203,7 @@ def _validate_current_record(
         findings.append(
             _finding(
                 profile,
-                "WEMV120-HISTORY-002",
+                "HISTORY-002",
                 record.path,
                 (
                     f"Current Status for {record.identifier} is {record.status or '<missing>'}, "
@@ -216,7 +216,7 @@ def _validate_current_record(
             findings.append(
                 _finding(
                     profile,
-                    "WEMV120-HISTORY-004",
+                    "HISTORY-004",
                     record.path,
                     (
                         f"Status History for {record.identifier} contains an invalid transition: "
@@ -323,12 +323,13 @@ def _revision(value: str) -> str:
 
 def _finding(
     profile: ValidationProfile,
-    rule_id: str,
+    rule_key: str,
     path: str,
     explanation: str,
     *,
     limitations: tuple[str, ...] = (),
 ) -> Finding:
+    rule_id = rule_identifier(profile, rule_key)
     definition = next(item for item in profile.rules if item.identifier == rule_id)
     return Finding.create(
         rule_id=rule_id,

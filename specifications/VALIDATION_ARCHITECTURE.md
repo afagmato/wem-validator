@@ -1,7 +1,7 @@
 ---
 Document: Validation Architecture
 Title: WEM Validator Versioned Read-Only Validation Architecture
-Version: 0.3.0
+Version: 0.4.0
 Status: Draft
 Type: Architecture
 ASI: 4
@@ -23,7 +23,7 @@ It materializes the architecture accepted in `decisions/WEMV-ADR-002.md`. It doe
 
 ## Status and Authority
 
-This specification is Draft and is authorized for controlled application. The Project Owner accepted the first four implementation Milestones with their documented limitations, including the completed fourth Milestone on 2026-11-06.
+This specification is Draft and is authorized for controlled application. The Project Owner accepted the first four implementation Milestones with their documented limitations, including the completed fourth Milestone on 2026-11-06. The fifth Milestone defined by `decisions/WEMV-ADR-007.md` is implemented and awaits Project Owner acceptance.
 
 Further product implementation SHALL require a bounded Milestone authorization and every applicable decision gate. First-Milestone acceptance does not release the Draft CLI or JSON interface as a compatibility commitment.
 
@@ -268,6 +268,14 @@ The fourth Milestone introduces the normalized ADR representation boundary and W
 
 The Milestone SHALL eliminate representation-driven false positives for the supported WEM Orchestrator historical ADR form, retain current frontmatter behavior and continue to expose genuinely missing normative content. It does not implement arbitrary decision-record formats or a complete WEM 1.0.0 profile.
 
+## Fifth Milestone Architecture
+
+The fifth Milestone adds the `wem-1.3.0` profile under `decisions/WEMV-ADR-007.md`. Both profiles derive their rules from one shared table of rule keys, sources and descriptions. Each profile binds its own rule-identifier prefix, WEM sources and supported ADR WEM References.
+
+The `wem-1.2.0` profile keeps its identifiers, sources, implementation version 0.4.0 and output. The `wem-1.3.0` profile starts at implementation version 0.1.0, uses the `WEMV130` prefix and cites ADR Specification 1.2.0. The default profile remains `wem-1.2.0`. The package advances to 0.4.0 and report Schema 0.3.0 is unchanged.
+
+WEM 1.3.0 project-neutral ASI semantics and Validator Adoption Dispositions are judgment or transient initiation content and remain outside structural validation.
+
 ## Verification Responsibilities
 
 Verification SHALL demonstrate:
@@ -284,7 +292,8 @@ Verification SHALL demonstrate:
 - WEM-reference-aware preservation of valid historical ADR knowledge;
 - no provider-specific type in the validation core;
 - locked dependency and build reproducibility for the selected implementation profile;
-- successful validation of the intended WEM `v1.2.0` target within the declared rule coverage.
+- successful validation of the intended WEM `v1.2.0` target within the declared rule coverage;
+- successful validation of the WEM `v1.3.0` target with the `wem-1.3.0` profile within the declared rule coverage.
 
 ## Evolution
 

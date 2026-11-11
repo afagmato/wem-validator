@@ -183,3 +183,64 @@ WEM-P-003.
     report = validate_target(tmp_path, profile_id="wem-1.2.0")
     assert {finding.rule_id for finding in report.findings} == {"WEMV120-INPUT-001"}
     assert report.findings[0].outcome is Outcome.UNSUPPORTED
+
+
+def _with_reference(repository_root: Path, target: Path, reference: str) -> Path:
+    shutil.copytree(repository_root / "tests" / "fixtures" / "valid", target)
+    adr = target / "decisions" / "EXAMPLE-ADR-001.md"
+    adr.write_text(
+        adr.read_text(encoding="utf-8").replace("WEM 1.2.0 — Released", reference),
+        encoding="utf-8",
+    )
+    return target
+
+
+def test_wem_130_profile_accepts_valid_fixture(repository_root: Path) -> None:
+    report = validate_target(
+        repository_root / "tests" / "fixtures" / "valid",
+        profile_id="wem-1.3.0",
+    )
+    assert report.findings == ()
+    assert report.profile == "wem-1.3.0"
+    assert report.wem_reference == "WEM 1.3.0 — Released"
+
+
+def test_wem_130_reference_requires_wem_130_profile(tmp_path: Path, repository_root: Path) -> None:
+    target = _with_reference(repository_root, tmp_path / "target", "WEM 1.3.0 — Released")
+
+    legacy = validate_target(target, profile_id="wem-1.2.0")
+    assert {finding.rule_id for finding in legacy.findings} == {"WEMV120-INPUT-001"}
+    assert legacy.findings[0].outcome is Outcome.UNSUPPORTED
+
+    current = validate_target(target, profile_id="wem-1.3.0")
+    assert current.findings == ()
+
+
+def test_wem_130_profile_reports_independent_rule_failures(repository_root: Path) -> None:
+    report = validate_target(
+        repository_root / "tests" / "fixtures" / "invalid",
+        profile_id="wem-1.3.0",
+    )
+    rule_ids = {item.rule_id for item in report.findings}
+    assert {
+        "WEMV130-FM-003",
+        "WEMV130-LINK-001",
+        "WEMV130-ADR-001",
+        "WEMV130-ADR-002",
+        "WEMV130-ADR-003",
+    }.issubset(rule_ids)
+    assert not any(identifier.startswith("WEMV120-") for identifier in rule_ids)
+    assert report.failed is True
+
+
+def test_profiles_share_rule_behavior(repository_root: Path) -> None:
+    target = repository_root / "tests" / "fixtures" / "invalid"
+    legacy = validate_target(target, profile_id="wem-1.2.0")
+    current = validate_target(target, profile_id="wem-1.3.0")
+    assert [
+        (item.rule_id.removeprefix("WEMV120-"), item.path, item.line, item.explanation)
+        for item in legacy.findings
+    ] == [
+        (item.rule_id.removeprefix("WEMV130-"), item.path, item.line, item.explanation)
+        for item in current.findings
+    ]
