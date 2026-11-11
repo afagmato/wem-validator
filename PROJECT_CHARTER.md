@@ -1,8 +1,8 @@
 ---
 Document: Project Charter
 Title: WEM Validator Project Charter
-Version: 0.1.0
-Status: Draft
+Version: 1.0.0
+Status: Released
 Type: Foundation
 ASI: 5
 Language: English
@@ -19,7 +19,9 @@ WEM Reference: WEM 1.2.0 — Released
 
 This Charter establishes the identity, mission, boundaries, authority and initial constraints of WEM Validator.
 
-The Project Owner accepted the Foundation Package on 2026-11-03 and authorized creation of the local repository and this Draft Charter. That authorization does not release the Charter, select implementation technology, authorize product implementation, create a remote repository or authorize commit or push.
+The Project Owner accepted the Foundation Package on 2026-11-03 and authorized creation of the local repository and this Draft Charter. That authorization did not release the Charter, select implementation technology, authorize product implementation, create a remote repository or authorize commit or push.
+
+Version 1.0.0 is Released. The Project Owner authorized its release on 2026-11-11 after technical review. The release changes the lifecycle state and records later facts; it does not change the mission, product responsibility, final authority or read-only foundational boundary.
 
 ## Project Identity
 
@@ -147,9 +149,9 @@ The following directions are now accepted and implemented in Draft form:
 The following remain unresolved material decisions:
 
 - public compatibility and release status for the CLI, manifest and JSON interfaces;
-- profiles for WEM versions other than 1.2.0;
+- profiles for WEM versions other than 1.2.0 and 1.3.0;
 - licensing;
-- remote hosting and publication.
+- public visibility and package publication.
 
 ## Initial Decision Skeleton
 
@@ -164,7 +166,9 @@ The following remain unresolved material decisions:
 | Repository-scoped manifest and extended link semantics | ASI-3 | Project Owner | Accepted and implemented through WEMV-ADR-004 |
 | Git-aware ADR lifecycle validation | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-005 |
 | Format-independent and WEM-reference-aware ADR validation | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-006 |
-| Licensing and publication | Human-reserved | Project Owner | Deferred |
+| WEM 1.3.0 validation profile | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-007 |
+| Private remote hosting | Human-reserved | Project Owner | Authorized on 2026-11-11; private GitHub repository `afagmato/wem-validator` |
+| Licensing, public visibility and package publication | Human-reserved | Project Owner | Deferred |
 
 ## First Milestone
 
@@ -213,7 +217,7 @@ The current accepted local baseline extends the Initialization Baseline with:
 - 48 passing automated tests and deterministic installed-wheel verification;
 - zero-finding validation of the WEM Validator manifest scope, the remediated WEM Orchestrator working tree and the WEM `v1.2.0` archive within their declared coverage.
 
-The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c` and its closure correction by `c6fe684`. The accepted fourth-Milestone extension is preserved through the dedicated local commit authorized on 2026-11-06. The repository has no configured remote, and no push, tag, license, publication or product release has been performed.
+The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c` and its closure correction by `c6fe684`. The accepted fourth-Milestone extension is preserved through the dedicated local commit authorized on 2026-11-06. On 2026-11-11, the Project Owner authorized creation of the private GitHub repository `afagmato/wem-validator`, and the existing `main` history was pushed to it. No tag, license, public visibility, package publication or product release has been performed.
 
 ## Third Milestone
 
@@ -242,6 +246,14 @@ The Milestone advances the Draft WEM 1.2.0 profile implementation to version 0.4
 
 The Project Owner accepted the fourth Milestone with its documented limitations and authorized its local commit on 2026-11-06. No remote creation, push, tag, license, publication, release or distribution is authorized.
 
+## Fifth Milestone
+
+The fifth Milestone adds the `wem-1.3.0` validation profile so that projects declaring WEM 1.3.0 can validate their ADRs and receive an `Adopt` disposition under WEM-ADR-013.
+
+WEMV-ADR-007 authorized the bounded implementation, its commit and its push on 2026-11-11. Both profiles share one rule table; `wem-1.2.0` output is unchanged and remains the default. The executable package advances to 0.4.0.
+
+Local verification completed with 54 passing tests, zero errors for the WEM `v1.3.0` repository with the `wem-1.3.0` profile in Git-aware mode and zero findings for WEM Orchestrator. Project Owner acceptance of the fifth Milestone remains pending.
+
 ## Foundation Acceptance Criteria
 
 - the project identity and separate-product responsibility are explicit;
@@ -264,12 +276,14 @@ The Project Owner accepted the fourth Milestone with its documented limitations 
 
 ## WEM Adoption
 
-WEM Validator adopts WEM 1.2.0 — Released for its own engineering governance. It does not automatically adopt the Draft WEM 1.3.0 work in the methodology repository.
+WEM Validator adopts WEM 1.2.0 — Released for its own engineering governance. WEM 1.3.0 was Released on 2026-11-07. The product implements a WEM 1.3.0 validation profile but does not itself adopt WEM 1.3.0 for its own governance until a separate adoption decision.
 
 Applicable Engineering Principles SHALL be interpreted from the declared WEM version. The product will define its own repository architecture, decision authorities, licensing and implementation through separately governed decisions.
 
 ## Evolution
 
-This Charter remains Draft until it completes technical review and the Project Owner separately authorizes its release. Changes to mission, product responsibility, final authority or read-only foundational boundary require ASI-5 governance.
+This Charter completed technical review on 2026-11-11. The reviewer, Claude Code, did not author the Charter. The review found no blocking finding: the identity, mission, scope, authority, constraints and Decision Skeleton are coherent with the Accepted WEMV-ADRs and with WEM 1.2.0. Review Result: `Accepted for the next authorized gate`. The Project Owner then authorized the release of Version 1.0.0.
+
+Changes to mission, product responsibility, final authority or read-only foundational boundary require ASI-5 governance.
 
 ## End of Charter
