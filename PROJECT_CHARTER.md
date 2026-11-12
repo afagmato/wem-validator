@@ -151,7 +151,7 @@ The following remain unresolved material decisions:
 - public compatibility and release status for the CLI, manifest and JSON interfaces;
 - profiles for WEM versions other than 1.2.0 and 1.3.0;
 - licensing;
-- public visibility and package publication.
+- package publication.
 
 ## Initial Decision Skeleton
 
@@ -167,8 +167,8 @@ The following remain unresolved material decisions:
 | Git-aware ADR lifecycle validation | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-005 |
 | Format-independent and WEM-reference-aware ADR validation | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-006 |
 | WEM 1.3.0 validation profile | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-007 |
-| Private remote hosting | Human-reserved | Project Owner | Authorized on 2026-11-11; private GitHub repository `afagmato/wem-validator` |
-| Licensing, public visibility and package publication | Human-reserved | Project Owner | Deferred |
+| Remote hosting | Human-reserved | Project Owner | Private GitHub repository `afagmato/wem-validator` authorized on 2026-11-11; public visibility authorized on 2026-11-12 |
+| Licensing and package publication | Human-reserved | Project Owner | Deferred |
 
 ## First Milestone
 
@@ -212,12 +212,13 @@ The current accepted local baseline extends the Initialization Baseline with:
 - explicit opt-in local Git first-parent observation and ADR lifecycle-preservation rules;
 - normalized ADR identity and lifecycle extraction across supported frontmatter, field-preamble and canonical-section representations;
 - Draft finding-report JSON Schema 0.3.0 with Schema 0.2.0 preserved as historical knowledge;
-- packaged Schema resources, versioned rule inventory and profile implementation version 0.4.0;
-- executable package version 0.3.0;
-- 48 passing automated tests and deterministic installed-wheel verification;
-- zero-finding validation of the WEM Validator manifest scope, the remediated WEM Orchestrator working tree and the WEM `v1.2.0` archive within their declared coverage.
+- packaged Schema resources, versioned rule inventory, `wem-1.2.0` profile implementation version 0.4.0 and `wem-1.3.0` profile implementation version 0.1.0;
+- executable package version 0.4.0;
+- 54 passing automated tests and deterministic installed-wheel verification;
+- zero-finding validation of the WEM Validator manifest scope, the remediated WEM Orchestrator working tree and the WEM `v1.2.0` archive within their declared coverage;
+- zero errors for the WEM `v1.3.0` repository with the `wem-1.3.0` profile.
 
-The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c` and its closure correction by `c6fe684`. The accepted fourth-Milestone extension is preserved through the dedicated local commit authorized on 2026-11-06. On 2026-11-11, the Project Owner authorized creation of the private GitHub repository `afagmato/wem-validator`, and the existing `main` history was pushed to it. No tag, license, public visibility, package publication or product release has been performed.
+The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c` and its closure correction by `c6fe684`. The accepted fourth-Milestone extension is preserved through the dedicated local commit authorized on 2026-11-06. On 2026-11-11, the Project Owner authorized creation of the private GitHub repository `afagmato/wem-validator`, and the existing `main` history was pushed to it. On 2026-11-12, the Project Owner authorized public visibility of the repository so that projects outside the Project Owner's control can evaluate an `Adopt` disposition. No tag, license, package publication or product release has been performed. Without a license, public visibility grants no permission to use, copy or modify the product.
 
 ## Third Milestone
 
@@ -252,7 +253,7 @@ The fifth Milestone adds the `wem-1.3.0` validation profile so that projects dec
 
 WEMV-ADR-007 authorized the bounded implementation, its commit and its push on 2026-11-11. Both profiles share one rule table; `wem-1.2.0` output is unchanged and remains the default. The executable package advances to 0.4.0.
 
-Local verification completed with 54 passing tests, zero errors for the WEM `v1.3.0` repository with the `wem-1.3.0` profile in Git-aware mode and zero findings for WEM Orchestrator. Project Owner acceptance of the fifth Milestone remains pending.
+Local verification completed with 54 passing tests, zero errors for the WEM `v1.3.0` repository with the `wem-1.3.0` profile in Git-aware mode and zero findings for WEM Orchestrator. The Project Owner accepted the fifth Milestone on 2026-11-12. The implementing participant, Claude Code, is not its independent technical reviewer; the Project Owner accepted the Milestone without a separate independent review.
 
 ## Foundation Acceptance Criteria
 

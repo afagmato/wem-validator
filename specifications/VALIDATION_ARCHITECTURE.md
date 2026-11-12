@@ -23,7 +23,7 @@ It materializes the architecture accepted in `decisions/WEMV-ADR-002.md`. It doe
 
 ## Status and Authority
 
-This specification is Draft and is authorized for controlled application. The Project Owner accepted the first four implementation Milestones with their documented limitations, including the completed fourth Milestone on 2026-11-06. The fifth Milestone defined by `decisions/WEMV-ADR-007.md` is implemented and awaits Project Owner acceptance.
+This specification is Draft and is authorized for controlled application. The Project Owner accepted the first four implementation Milestones with their documented limitations, including the completed fourth Milestone on 2026-11-06. The Project Owner accepted the fifth Milestone defined by `decisions/WEMV-ADR-007.md` on 2026-11-12.
 
 Further product implementation SHALL require a bounded Milestone authorization and every applicable decision gate. First-Milestone acceptance does not release the Draft CLI or JSON interface as a compatibility commitment.
 
