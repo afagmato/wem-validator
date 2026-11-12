@@ -131,7 +131,7 @@ These are replaceable operational assignments. Providers and models SHALL NOT de
 - Validation SHALL fail explicitly when a required input is malformed, unavailable or unsupported.
 - Findings SHALL be bounded and SHALL NOT reproduce credentials, complete private files or unnecessary sensitive content.
 - Human-readable and machine-readable output SHALL represent the same findings.
-- Technology, repository architecture and rule-versioning decisions SHALL remain governed by their Accepted ADRs. Licensing and publication remain deferred.
+- Technology, repository architecture, rule-versioning and licensing decisions SHALL remain governed by their Accepted ADRs. The product is licensed under Apache-2.0 through WEMV-ADR-008. Package publication remains deferred.
 
 ## Preferences and Assumptions
 
@@ -150,7 +150,6 @@ The following remain unresolved material decisions:
 
 - public compatibility and release status for the CLI, manifest and JSON interfaces;
 - profiles for WEM versions other than 1.2.0 and 1.3.0;
-- licensing;
 - package publication.
 
 ## Initial Decision Skeleton
@@ -168,7 +167,8 @@ The following remain unresolved material decisions:
 | Format-independent and WEM-reference-aware ADR validation | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-006 |
 | WEM 1.3.0 validation profile | ASI-3 | Project Owner | Accepted and implementation authorized through WEMV-ADR-007 |
 | Remote hosting | Human-reserved | Project Owner | Private GitHub repository `afagmato/wem-validator` authorized on 2026-11-11; public visibility authorized on 2026-11-12 |
-| Licensing and package publication | Human-reserved | Project Owner | Deferred |
+| Licensing | ASI-4 | Project Owner | Accepted through WEMV-ADR-008: Apache-2.0 |
+| Package publication | Human-reserved | Project Owner | Deferred |
 
 ## First Milestone
 
@@ -218,7 +218,7 @@ The current accepted local baseline extends the Initialization Baseline with:
 - zero-finding validation of the WEM Validator manifest scope, the remediated WEM Orchestrator working tree and the WEM `v1.2.0` archive within their declared coverage;
 - zero errors for the WEM `v1.3.0` repository with the `wem-1.3.0` profile.
 
-The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c` and its closure correction by `c6fe684`. The accepted fourth-Milestone extension is preserved through the dedicated local commit authorized on 2026-11-06. On 2026-11-11, the Project Owner authorized creation of the private GitHub repository `afagmato/wem-validator`, and the existing `main` history was pushed to it. On 2026-11-12, the Project Owner authorized public visibility of the repository so that projects outside the Project Owner's control can evaluate an `Adopt` disposition. No tag, license, package publication or product release has been performed. Without a license, public visibility grants no permission to use, copy or modify the product.
+The first- and second-Milestone baseline is preserved by initial local Git commit `6659dbd`, with its later documentation correction preserved by commit `6104080`. The accepted third-Milestone extension is preserved by local commit `2e19a0c` and its closure correction by `c6fe684`. The accepted fourth-Milestone extension is preserved through the dedicated local commit authorized on 2026-11-06. On 2026-11-11, the Project Owner authorized creation of the private GitHub repository `afagmato/wem-validator`, and the existing `main` history was pushed to it. On 2026-11-12, the Project Owner authorized public visibility of the repository so that projects outside the Project Owner's control can evaluate an `Adopt` disposition. No tag, package publication or product release has been performed. On 2026-11-12, the Project Owner also licensed the product under Apache-2.0 through WEMV-ADR-008.
 
 ## Third Milestone
 
